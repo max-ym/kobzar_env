@@ -100,7 +100,7 @@ impl OwnedThread {
     ///
     /// Err is returned if thread is guarded.
     // TODO verify killing policies for efficiency
-    pub fn brute_kill(&mut self) -> Result<(), ()> {
+    pub unsafe fn brute_kill(&mut self) -> Result<(), ()> {
         unimplemented!()
     }
 }
