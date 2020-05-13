@@ -108,6 +108,36 @@ impl OwnedThread {
 /// General information about thread in the network.
 pub struct Thread {}
 
+impl Thread {
+    pub fn is_running(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_paused(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_pause_requested(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_run_requested(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_killed(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_ceased(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn is_dead(&self) -> bool {
+        self.is_killed() || self.is_ceased()
+    }
+}
+
 pub enum ThreadBuildError {
     /// Creator has no rights to create this type of threads.
     ThreadCreationNotPermitted,
