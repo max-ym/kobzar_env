@@ -16,6 +16,7 @@ use core::num::NonZeroU16;
 use crate::harc::Harc;
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
+use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
 
 /// Unique identifier of the thread instance inside of the network. First field
 /// indicates its ID and second is used as duplicate marker which is assigned non-zero value
@@ -134,4 +135,6 @@ pub trait Network {
     /// Find instances that have this package name.
     fn find_package_instances(&self, find: &FindInstanceRequest)
                               -> SmallVec<[Harc<InstanceId>; 16]>;
+    
+    fn create_thread(&mut self, t: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError>;
 }

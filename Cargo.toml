@@ -12,3 +12,4 @@ dummy = []
 [dependencies]
 big_unsigned_ints = "0.1"
 smallvec = "1.4"
+time = "0.2"
