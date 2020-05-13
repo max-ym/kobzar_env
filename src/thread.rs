@@ -7,6 +7,17 @@ use core::ops::Deref;
 
 pub type Priority = f32;
 
+pub enum PerformancePolicy {
+    /// Request best performance possible for given thread.
+    Performance,
+
+    /// No special requests.
+    Normal,
+
+    /// If the system is powersaving then cease this thread.
+    CeaseIfPowersave,
+}
+
 pub struct TaskDetail {
     /// Estimated time left for execution to end. It may go negative
     /// if task exceeded it's time during execution.
@@ -81,8 +92,11 @@ impl OwnedThread {
 pub struct Thread {}
 
 pub enum ThreadBuildError {
-    /// Owner have no rights to create this type of threads.
-    NotPermitted,
+    /// Creator has no rights to create this type of threads.
+    ThreadCreationNotPermitted,
+
+    /// Performance policy requested is not permitted for creator.
+    PerformancePolicyNotPermitted,
 }
 
 impl<'a> ThreadBuilder<'a> {
