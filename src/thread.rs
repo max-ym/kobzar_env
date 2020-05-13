@@ -2,6 +2,8 @@ use core::time::Duration;
 use time::Time;
 use crate::path::{LocalPath, Network};
 use crate::{kobzar_env, KobzarEnv};
+use crate::harc::Harc;
+use core::ops::Deref;
 
 pub type Priority = f32;
 
@@ -51,7 +53,32 @@ pub struct ThreadBuilder<'a> {
 
 /// Thread that is owned by other thread. Owner can affect thread execution or change some
 /// the data associated with thread.
-pub struct OwnedThread {}
+pub struct OwnedThread {
+    thread: Harc<Thread>,
+}
+
+impl Deref for OwnedThread {
+    type Target = Thread;
+
+    fn deref(&self) -> &Self::Target {
+        self.thread.deref()
+    }
+}
+
+impl OwnedThread {
+    /// Allow execution of this thread.
+    pub fn allow_run(&mut self) {
+        unimplemented!()
+    }
+
+    /// Request pausing of this thread to prevent further execution until run is requested.
+    pub fn request_pause(&mut self) {
+        unimplemented!()
+    }
+}
+
+/// General information about thread in the network.
+pub struct Thread {}
 
 pub enum ThreadBuildError {
     /// Owner have no rights to create this type of threads.
@@ -61,5 +88,11 @@ pub enum ThreadBuildError {
 impl<'a> ThreadBuilder<'a> {
     pub fn build(&self) -> Result<OwnedThread, ThreadBuildError> {
         kobzar_env().network_mut().create_thread(self)
+    }
+
+    /// Build thread without getting ownership over it. Only general information will be available
+    /// and creator will not be able to influence the created thread.
+    pub fn build_unowned(&self) -> Result<Harc<Thread>, ThreadBuildError> {
+        unimplemented!()
     }
 }
