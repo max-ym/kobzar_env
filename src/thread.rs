@@ -7,6 +7,53 @@ use core::ops::Deref;
 
 pub type Priority = f32;
 
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum ThreadState {
+    Running,
+    Paused,
+    Ceased,
+    Killed,
+
+    PausedRunRequested,
+    RunningPauseRequested,
+    RunningCeaseRequested,
+    PausedCeaseRequested,
+}
+
+impl ThreadState {
+    pub fn is_running(&self) -> bool {
+        ThreadState::Running == *self
+    }
+
+    pub fn is_paused(&self) -> bool {
+        ThreadState::Paused == *self
+    }
+
+    pub fn is_pause_requested(&self) -> bool {
+        ThreadState::RunningPauseRequested == *self
+    }
+
+    pub fn is_run_requested(&self) -> bool {
+        ThreadState::PausedRunRequested == *self
+    }
+
+    pub fn is_killed(&self) -> bool {
+        ThreadState::Killed == *self
+    }
+
+    pub fn is_ceased(&self) -> bool {
+        ThreadState::Ceased == *self
+    }
+
+    pub fn is_cease_requested(&self) -> bool {
+        ThreadState::PausedCeaseRequested == *self || ThreadState::RunningCeaseRequested == *self
+    }
+
+    pub fn is_dead(&self) -> bool {
+        self.is_killed() || self.is_ceased()
+    }
+}
+
 pub enum PerformancePolicy {
     /// Request best performance possible for given thread.
     Performance,
@@ -109,32 +156,8 @@ impl OwnedThread {
 pub struct Thread {}
 
 impl Thread {
-    pub fn is_running(&self) -> bool {
+    pub fn thread_state(&self) -> ThreadState {
         unimplemented!()
-    }
-
-    pub fn is_paused(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_pause_requested(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_run_requested(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_killed(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_ceased(&self) -> bool {
-        unimplemented!()
-    }
-
-    pub fn is_dead(&self) -> bool {
-        self.is_killed() || self.is_ceased()
     }
 }
 
