@@ -13,7 +13,7 @@
 
 use big_unsigned_ints::U256;
 use core::num::NonZeroU16;
-use crate::harc::Harc;
+use crate::harc::Darc;
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
 use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
@@ -118,7 +118,7 @@ impl<'a> FindInstanceRequest<'a> {
         self
     }
 
-    pub fn find(&self) -> SmallVec<[Harc<InstanceId>; 16]> {
+    pub fn find(&self) -> SmallVec<[Darc<InstanceId>; 16]> {
         kobzar_env().network().find_package_instances(self)
     }
 
@@ -134,7 +134,7 @@ impl<'a> FindInstanceRequest<'a> {
 pub trait Network {
     /// Find instances that have this package name.
     fn find_package_instances(&self, find: &FindInstanceRequest)
-                              -> SmallVec<[Harc<InstanceId>; 16]>;
-    
+                              -> SmallVec<[Darc<InstanceId>; 16]>;
+
     fn create_thread(&mut self, t: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError>;
 }

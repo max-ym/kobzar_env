@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::{KobzarEnv, PrivateKobzarEnv, Uid};
 use crate::path::{Network, FindInstanceRequest, InstanceId};
-use crate::harc::Harc;
+use crate::harc::Darc;
 use smallvec::SmallVec;
 
 pub struct UnimplementedEnv;
@@ -20,7 +20,7 @@ impl KobzarEnv for UnimplementedEnv {
 }
 
 impl PrivateKobzarEnv for UnimplementedEnv {
-    fn release_harc_resource(&mut self, _: Uid) {
+    fn release_info_resource(&mut self, _: Uid) {
         unimplemented!()
     }
 }
@@ -31,7 +31,7 @@ pub fn kobzar_env() -> &'static mut UnimplementedEnv {
 
 impl Network for UnimplementedNetwork {
     fn find_package_instances(&self, _: &FindInstanceRequest)
-                              -> SmallVec<[Harc<InstanceId>; 16]> {
+                              -> SmallVec<[Darc<InstanceId>; 16]> {
         unimplemented!()
     }
 }

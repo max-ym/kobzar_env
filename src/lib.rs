@@ -15,6 +15,7 @@ mod harc;
 /// errors in implementer-agnostic code.
 mod unimpled;
 pub use unimpled::*;
+use crate::harc::Snapshot;
 
 pub trait KobzarEnv {
     type Network: Network;
@@ -22,10 +23,13 @@ pub trait KobzarEnv {
     fn network(&self) -> &Self::Network;
 
     fn network_mut(&mut self) -> &mut Self::Network;
+
+    /// Download latest updates for the data in the snapshot.
+    fn download_new_snapshot<T: Clone>(&self, var: &Snapshot<T>) -> Snapshot<T>;
 }
 
 trait PrivateKobzarEnv: KobzarEnv {
-    fn release_harc_resource(&mut self, uid: Uid);
+    fn release_info_resource(&mut self, uid: Uid);
 }
 
 #[cfg(test)]
