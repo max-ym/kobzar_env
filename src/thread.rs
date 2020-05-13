@@ -54,6 +54,7 @@ impl ThreadState {
     }
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub enum PerformancePolicy {
     /// Request best performance possible for given thread.
     Performance,
@@ -65,6 +66,7 @@ pub enum PerformancePolicy {
     CeaseIfPowersave,
 }
 
+#[derive(Clone, PartialEq)]
 pub struct TaskDetail {
     /// Estimated time left for execution to end. It may go negative
     /// if task exceeded it's time during execution.
@@ -79,6 +81,7 @@ pub struct TaskDetail {
 
 /// Thread type with associated information. According to the information available scheduler
 /// decides time allocation, execution ordering.
+#[derive(Clone, PartialEq)]
 pub enum ThreadType {
     /// Thread that is executed as task. It has associated estimate time of completion.
     TimerTask(TaskDetail),
@@ -102,11 +105,6 @@ pub enum ThreadType {
 
     /// Typical application thread that runs in parallel with other threads.
     Parallel,
-}
-
-pub struct ThreadBuilder<'a> {
-    pub local_path: LocalPath<'a>,
-    pub ty: ThreadType,
 }
 
 /// Thread that is owned by other thread. Owner can affect thread execution or change some
@@ -162,6 +160,11 @@ impl Thread {
     pub fn thread_state(&self) -> ThreadState {
         unimplemented!()
     }
+}
+
+pub struct ThreadBuilder<'a> {
+    pub local_path: LocalPath<'a>,
+    pub ty: ThreadType,
 }
 
 pub enum ThreadBuildError {
