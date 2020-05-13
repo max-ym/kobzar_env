@@ -86,6 +86,23 @@ impl OwnedThread {
     pub fn request_pause(&mut self) {
         unimplemented!()
     }
+
+    /// Notify thread to cease.
+    pub fn request_cease(&mut self) {
+        unimplemented!()
+    }
+
+    /// Kill thread immediately. Thread may be secured from killing. On startup each
+    /// thread decides whether it needs guard to prevent killing. Even thread owner cannot
+    /// kill this thread. Owned thread can release or re-acquire guard at any time. If thread
+    /// is killed any resources owned by the thread will be lost. Any shared resources which
+    /// were modified will possibly get corrupted. It's best to use [`request_cease`] instead.
+    ///
+    /// Err is returned if thread is guarded.
+    // TODO verify killing policies for efficiency
+    pub fn brute_kill(&mut self) -> Result<(), ()> {
+        unimplemented!()
+    }
 }
 
 /// General information about thread in the network.
