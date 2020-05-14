@@ -11,18 +11,14 @@
 //! interesting resources
 //! or only resources currently in use.
 
-use core::num::NonZeroU16;
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
 use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
 use alloc::sync::Arc;
 
-/// Unique identifier of the thread instance inside of the network. First field
-/// indicates its ID and second is used as duplicate marker which is assigned non-zero value
-/// in case duplicate of unique ID was found in the network which generally is almost
-/// impossible.
+/// Unique identifier of the thread instance inside of the network.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
-pub struct Uid(pub u128, pub Option<NonZeroU16>);
+pub struct Uid(pub u64);
 
 /// Path of some resource. It consists of up to 8 nodes. Path entry
 /// contains only pointers to string slices and generally Clone operation is

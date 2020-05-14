@@ -217,8 +217,8 @@ impl Thread {
 }
 
 impl Handle for Thread {
-    fn instance(&self) -> &InstanceId {
-        &self.instance
+    fn uid(&self) -> Uid {
+        self.instance.uid()
     }
 }
 

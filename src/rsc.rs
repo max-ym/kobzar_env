@@ -1,8 +1,7 @@
-use crate::{kobzar_env, KobzarEnv};
-use crate::path::InstanceId;
+use crate::{kobzar_env, KobzarEnv, Uid};
 
 pub trait Handle {
-    fn instance(&self) -> &InstanceId;
+    fn uid(&self) -> Uid;
 }
 
 /// Handle to a global data that has constant nature (opposite to Snapshot).
