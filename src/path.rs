@@ -11,7 +11,6 @@
 //! interesting resources
 //! or only resources currently in use.
 
-use big_unsigned_ints::U256;
 use core::num::NonZeroU16;
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
@@ -23,11 +22,12 @@ use alloc::sync::Arc;
 /// in case duplicate of unique ID was found in the network which generally is almost
 /// impossible.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
-pub struct Uid(pub U256, pub Option<NonZeroU16>);
+pub struct Uid(pub u128, pub Option<NonZeroU16>);
 
 /// Path of some resource. It consists of up to 8 nodes. Path entry
 /// contains only pointers to string slices and generally Clone operation is
 /// cheap.
+// TODO impl node types.
 #[derive(Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Path {
     nodes: [&'static str; 8],

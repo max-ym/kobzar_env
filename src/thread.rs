@@ -9,7 +9,7 @@ use alloc::sync::Arc;
 pub type Priority = f32;
 
 #[derive(Clone, Copy, Eq, PartialEq)]
-pub enum ThreadState {
+pub enum State {
     Running,
     Paused,
     Ceased,
@@ -21,33 +21,51 @@ pub enum ThreadState {
     PausedCeaseRequested,
 }
 
-impl ThreadState {
+/// System notification that thread can subscribe to.
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum Notification {
+    /// Powersave mode turned on.
+    Powersave,
+
+    /// Powersave mode turned off.
+    PowersaveDisabled,
+}
+
+impl Notification {
+    /// Subscribe current thread to given notification.
+    pub fn subscribe(self) -> Self {
+        OwnedThread::current().subscribe_to(self);
+        self
+    }
+}
+
+impl State {
     pub fn is_running(&self) -> bool {
-        ThreadState::Running == *self
+        State::Running == *self
     }
 
     pub fn is_paused(&self) -> bool {
-        ThreadState::Paused == *self
+        State::Paused == *self
     }
 
     pub fn is_pause_requested(&self) -> bool {
-        ThreadState::RunningPauseRequested == *self
+        State::RunningPauseRequested == *self
     }
 
     pub fn is_run_requested(&self) -> bool {
-        ThreadState::PausedRunRequested == *self
+        State::PausedRunRequested == *self
     }
 
     pub fn is_killed(&self) -> bool {
-        ThreadState::Killed == *self
+        State::Killed == *self
     }
 
     pub fn is_ceased(&self) -> bool {
-        ThreadState::Ceased == *self
+        State::Ceased == *self
     }
 
     pub fn is_cease_requested(&self) -> bool {
-        ThreadState::PausedCeaseRequested == *self || ThreadState::RunningCeaseRequested == *self
+        State::PausedCeaseRequested == *self || State::RunningCeaseRequested == *self
     }
 
     pub fn is_dead(&self) -> bool {
@@ -62,9 +80,6 @@ pub enum PerformancePolicy {
 
     /// No special requests.
     Normal,
-
-    /// If the system is powersaving then cease this thread.
-    CeaseIfPowersave,
 }
 
 #[derive(Clone, PartialEq)]
@@ -83,7 +98,7 @@ pub struct TaskDetail {
 /// Thread type with associated information. According to the information available scheduler
 /// decides time allocation, execution ordering.
 #[derive(Clone, PartialEq)]
-pub enum ThreadType {
+pub enum Type {
     /// Thread that is executed as task. It has associated estimate time of completion.
     TimerTask(TaskDetail),
 
@@ -149,17 +164,54 @@ impl OwnedThread {
     pub unsafe fn brute_kill(&mut self) -> Result<(), ()> {
         unimplemented!()
     }
+
+    /// Sleep for at least given duration.
+    pub fn sleep(&mut self, duration: Duration) {
+        unimplemented!()
+    }
+
+    /// Try changing the performance policy. Err with most supported policy will be returned if
+    /// thread tries to use one it has no permissions for.
+    pub fn set_performance_policy(&mut self, policy: PerformancePolicy)
+                                  -> Result<(), PerformancePolicy> {
+        unimplemented!()
+    }
+
+    /// Get current performance policy.
+    pub fn performance_policy(&self) -> PerformancePolicy {
+        unimplemented!()
+    }
+
+    pub fn subscribe_to(&mut self, notif: Notification) {
+        unimplemented!()
+    }
+
+    pub fn unsubscribe_from(&mut self, notif: Notification) {
+        unimplemented!()
+    }
+
+    pub fn is_subscriber(&self, notif: Notification) -> bool {
+        unimplemented!()
+    }
+
+    /// Get current thread handle.
+    pub fn current() -> Self {
+        unimplemented!()
+    }
 }
 
 /// General information about thread in the network.
 #[derive(Clone)]
 pub struct Thread {
     instance: Arc<InstanceId>,
-    state: ThreadState,
+    state: State,
+
+    has_powersave_notif: bool,
+    has_powersave_disable_notif: bool,
 }
 
 impl Thread {
-    pub fn thread_state(&self) -> ThreadState {
+    pub fn thread_state(&self) -> State {
         unimplemented!()
     }
 }
@@ -174,7 +226,7 @@ impl Variable for Thread {}
 
 pub struct ThreadBuilder<'a> {
     pub local_path: LocalPath<'a>,
-    pub ty: ThreadType,
+    pub ty: Type,
 }
 
 pub enum ThreadBuildError {
@@ -182,7 +234,9 @@ pub enum ThreadBuildError {
     ThreadCreationNotPermitted,
 
     /// Performance policy requested is not permitted for creator.
-    PerformancePolicyNotPermitted,
+    PerformancePolicyNotPermitted {
+        most_supported: PerformancePolicy,
+    },
 }
 
 impl<'a> ThreadBuilder<'a> {
