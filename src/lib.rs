@@ -8,8 +8,8 @@ use crate::path::Network;
 
 pub mod path;
 
-/// Local Arc for KobzarEnv resources mapped to this app's memory.
-mod harc;
+/// KobzarEnv resources mapped to app's memory.
+mod rsc;
 
 pub mod msg;
 
@@ -17,9 +17,9 @@ pub mod msg;
 /// errors in implementer-agnostic code.
 mod unimpled;
 pub use unimpled::*;
-use crate::harc::Snapshot;
+use crate::rsc::Variable;
 
-pub trait KobzarEnv {
+trait KobzarEnv {
     type Network: Network;
 
     fn network(&self) -> &Self::Network;
@@ -27,7 +27,7 @@ pub trait KobzarEnv {
     fn network_mut(&mut self) -> &mut Self::Network;
 
     /// Download latest updates for the data in the snapshot.
-    fn download_new_snapshot<T: Clone>(&self, var: &Snapshot<T>) -> Snapshot<T>;
+    fn download_new_snapshot<T: Variable>(&self, var: &T) -> T;
 }
 
 trait PrivateKobzarEnv: KobzarEnv {

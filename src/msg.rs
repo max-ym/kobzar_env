@@ -2,8 +2,8 @@
 
 use crate::thread::Thread;
 use core::borrow::Borrow;
-use crate::harc::Darc;
 use crate::path::Interface;
+use alloc::sync::Arc;
 
 pub enum SendError {
     /// Receiver does not implement interface for which this message was formed.
@@ -12,7 +12,7 @@ pub enum SendError {
 
 pub struct Message<T> {
     msg: T,
-    interface: Darc<Interface>,
+    interface: Arc<Interface>,
 }
 
 impl<T> Message<T> {

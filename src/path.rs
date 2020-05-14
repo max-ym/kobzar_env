@@ -13,10 +13,10 @@
 
 use big_unsigned_ints::U256;
 use core::num::NonZeroU16;
-use crate::harc::Darc;
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
 use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
+use alloc::sync::Arc;
 
 /// Unique identifier of the thread instance inside of the network. First field
 /// indicates its ID and second is used as duplicate marker which is assigned non-zero value
@@ -123,7 +123,7 @@ impl<'a> FindInstanceRequest<'a> {
         self
     }
 
-    pub fn find(&self) -> SmallVec<[Darc<InstanceId>; 16]> {
+    pub fn find(&self) -> SmallVec<[Arc<InstanceId>; 16]> {
         kobzar_env().network().find_package_instances(self)
     }
 
@@ -139,7 +139,7 @@ impl<'a> FindInstanceRequest<'a> {
 pub trait Network {
     /// Find instances that have this package name.
     fn find_package_instances(&self, find: &FindInstanceRequest)
-                              -> SmallVec<[Darc<InstanceId>; 16]>;
+                              -> SmallVec<[Arc<InstanceId>; 16]>;
 
     fn create_thread(&mut self, t: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError>;
 }

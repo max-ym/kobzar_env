@@ -1,9 +1,10 @@
 use core::time::Duration;
 use time::Time;
-use crate::path::{LocalPath, Network};
-use crate::{kobzar_env, KobzarEnv};
-use crate::harc::{Sarc};
+use crate::path::{LocalPath, Network, InstanceId};
+use crate::{kobzar_env, KobzarEnv, Uid};
 use core::ops::Deref;
+use crate::rsc::{Variable, Handle};
+use alloc::sync::Arc;
 
 pub type Priority = f32;
 
@@ -110,14 +111,14 @@ pub enum ThreadType {
 /// Thread that is owned by other thread. Owner can affect thread execution or change some
 /// the data associated with thread.
 pub struct OwnedThread {
-    thread: Sarc<Thread>,
+    thread: Thread,
 }
 
 impl Deref for OwnedThread {
     type Target = Thread;
 
     fn deref(&self) -> &Self::Target {
-        self.thread.deref()
+        &self.thread
     }
 }
 
@@ -153,6 +154,7 @@ impl OwnedThread {
 /// General information about thread in the network.
 #[derive(Clone)]
 pub struct Thread {
+    instance: Arc<InstanceId>,
     state: ThreadState,
 }
 
@@ -161,6 +163,14 @@ impl Thread {
         unimplemented!()
     }
 }
+
+impl Handle for Thread {
+    fn instance(&self) -> &InstanceId {
+        &self.instance
+    }
+}
+
+impl Variable for Thread {}
 
 pub struct ThreadBuilder<'a> {
     pub local_path: LocalPath<'a>,
@@ -182,7 +192,7 @@ impl<'a> ThreadBuilder<'a> {
 
     /// Build thread without getting ownership over it. Only general information will be available
     /// and creator will not be able to influence the created thread.
-    pub fn build_unowned(&self) -> Result<Sarc<Thread>, ThreadBuildError> {
+    pub fn build_unowned(&self) -> Result<Thread, ThreadBuildError> {
         unimplemented!()
     }
 }
