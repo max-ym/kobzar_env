@@ -12,6 +12,11 @@ pub enum SendError {
     InterfaceNotImplemented,
 }
 
+pub enum ShareError {
+    /// Receiver does not implement interface for which this message was formed.
+    InterfaceNotImplemented,
+}
+
 #[derive(Clone)]
 pub struct Message<T: Send + Copy> {
     msg: T,
@@ -20,7 +25,7 @@ pub struct Message<T: Send + Copy> {
 
 impl<T> Message<T> where T: Send + Copy {
     /// Copy message into destination thread's memory.
-    pub fn send_to(&self, to: &Thread) -> Result<(), SendError> {
+    pub fn copy_to(&self, to: &Thread) -> Result<(), SendError> {
         unimplemented!()
     }
 }
@@ -44,5 +49,11 @@ impl<T> Deref for SharedMessage<T> where T: Send + Copy {
 
     fn deref(&self) -> &Self::Target {
         &self.msg
+    }
+}
+
+impl<T> SharedMessage<T> where T: Send + Copy {
+    pub fn share_with(&self, with: &Thread) -> Result<(), ShareError> {
+        unimplemented!()
     }
 }
