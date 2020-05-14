@@ -30,6 +30,17 @@ impl<T> Message<T> where T: Send + Copy {
     }
 }
 
+impl Message<()> {
+    /// Create new signal. Signal is a message with no body. It just signals the receiver
+    /// by the interface.
+    pub fn new_signal(interface: Rc<Interface>) -> Self {
+        Message {
+            msg: (),
+            interface,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct SharedMessage<T: Send + Copy> {
     msg: Message<T>,
