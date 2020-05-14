@@ -63,23 +63,28 @@ pub struct Version(u32, u32, u32);
 
 #[derive(Clone, PartialEq)]
 pub struct InstanceId {
-    path: Path,
-    version: Version,
+    interface: Interface,
     uid: Uid,
 }
 
 impl InstanceId {
     pub fn path(&self) -> &Path {
-        &self.path
+        &self.interface.path
     }
 
     pub fn version(&self) -> Version {
-        self.version
+        self.interface.version
     }
 
     pub fn uid(&self) -> Uid {
         self.uid
     }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct Interface {
+    path: Path,
+    version: Version,
 }
 
 // pub struct PackageInstances(SmallVec<[Harc<InstanceId>; 16]>);

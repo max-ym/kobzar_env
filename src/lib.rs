@@ -11,6 +11,8 @@ pub mod path;
 /// Local Arc for KobzarEnv resources mapped to this app's memory.
 mod harc;
 
+pub mod msg;
+
 /// Unimplemented environment. Is used while developing library to check for compilation
 /// errors in implementer-agnostic code.
 mod unimpled;
