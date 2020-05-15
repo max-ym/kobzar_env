@@ -4,6 +4,7 @@ use core::marker::PhantomData;
 use alloc::rc::Rc;
 use crate::thread::Thread;
 use crate::path::Interface;
+use core::time::Duration;
 
 pub struct InputPipe<I: Input> {
     src: Rc<Thread>,
@@ -28,7 +29,7 @@ pub trait Output {
     fn as_msg_bytes(&self) -> &[u8];
 }
 
-pub enum SendError {
+pub enum Error {
     /// Received has died.
     Died,
 
@@ -43,7 +44,7 @@ impl<O: Output> OutputPipe<O> {
     /// If pipe has no buffer that this is the same as [`rendezvous`] method.
     ///
     /// Error will occur if thread is no longer alive or connection is lost.
-    pub fn send(&self, msg: O) -> Result<(), SendError> {
+    pub fn send(&self, msg: &O) -> Result<(), Error> {
         unimplemented!()
     }
 
@@ -51,7 +52,25 @@ impl<O: Output> OutputPipe<O> {
     /// receiver actually acquired the message but it still does not guarantee that the
     /// message was read as receiver can discard it. This method will execute
     /// as soon as all previous messages will get received.
-    pub fn rendezvous(&self, msg: O) -> Result<(), SendError> {
+    pub fn rendezvous(&self, msg: &O) -> Result<(), Error> {
+        unimplemented!()
+    }
+
+    pub fn rendezvous_for(&self, msg: &O, duration: Duration) -> Result<Option<()>, Error> {
+        unimplemented!()
+    }
+}
+
+impl<I: Input> InputPipe<I> {
+    pub fn recv(&self) -> Result<Option<I>, Error> {
+        unimplemented!()
+    }
+
+    pub fn recv_sync(&self) -> Result<I, Error> {
+        unimplemented!()
+    }
+
+    pub fn recv_sync_for(&self, duration: Duration) -> Result<Option<I>, Error> {
         unimplemented!()
     }
 }
