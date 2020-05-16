@@ -1,6 +1,6 @@
 use core::time::Duration;
 use time::Time;
-use crate::path::{LocalPath, Network, InstanceId};
+use crate::path::{LocalPath, Network, InstanceId, Interface};
 use crate::{kobzar_env, KobzarEnv, Uid};
 use core::ops::Deref;
 use crate::rsc::{Variable, Handle};
@@ -211,10 +211,12 @@ impl Handle for Thread {
 
 impl Variable for Thread {}
 
-pub struct ThreadBuilder<'a> {
+pub struct ThreadBuilder<'a, 'b> {
     pub local_path: LocalPath<'a>,
     pub ty: Type,
     pub publicity: Publicity,
+
+    pub imp: &'b Interface,
 }
 
 pub enum ThreadBuildError {
@@ -225,9 +227,12 @@ pub enum ThreadBuildError {
     PerformancePolicyNotPermitted {
         most_supported: PerformancePolicy,
     },
+
+    /// Implementation for requested interface was not found.
+    NotFound,
 }
 
-impl<'a> ThreadBuilder<'a> {
+impl<'a, 'b> ThreadBuilder<'a, 'b> {
     pub fn build(&self) -> Result<OwnedThread, ThreadBuildError> {
         kobzar_env().network_mut().create_thread(self)
     }
