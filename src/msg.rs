@@ -35,6 +35,9 @@ pub enum Error {
 
     /// Connection with this thread was lost.
     ConnectionLost,
+
+    /// Interface used to communicate is not supported by receiver.
+    Unsupported,
 }
 
 impl<O: Output> Sender<O> {
