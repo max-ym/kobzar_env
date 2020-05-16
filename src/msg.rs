@@ -6,13 +6,13 @@ use crate::thread::Thread;
 use crate::path::Interface;
 use core::time::Duration;
 
-pub struct InputPipe<I: Input> {
+pub struct Receiver<I: Input> {
     src: Rc<Thread>,
     interface: Rc<Interface>,
     _input: PhantomData<I>,
 }
 
-pub struct OutputPipe<O: Output> {
+pub struct Sender<O: Output> {
     dest: Rc<Thread>,
     interface: Rc<Interface>,
     _output: PhantomData<O>,
@@ -37,7 +37,7 @@ pub enum Error {
     ConnectionLost,
 }
 
-impl<O: Output> OutputPipe<O> {
+impl<O: Output> Sender<O> {
     /// Send message into mailbox. Note that this does not guarantee that the message
     /// will be received. Receiver may also discard the message or cease without reading.
     /// This method does not block and message will be buffered in current Pipe output buffer.
@@ -61,7 +61,7 @@ impl<O: Output> OutputPipe<O> {
     }
 }
 
-impl<I: Input> InputPipe<I> {
+impl<I: Input> Receiver<I> {
     pub fn recv(&self) -> Result<Option<I>, Error> {
         unimplemented!()
     }
@@ -71,6 +71,36 @@ impl<I: Input> InputPipe<I> {
     }
 
     pub fn recv_sync_for(&self, duration: Duration) -> Result<Option<I>, Error> {
+        unimplemented!()
+    }
+}
+
+pub struct Mailbox;
+
+impl Mailbox {
+    /// Get mailbox of given thread.
+    pub fn current() -> Self {
+        unimplemented!()
+    }
+
+    pub fn has_incoming(&self) -> bool {
+        unimplemented!()
+    }
+
+    pub fn incoming<T: Input>(&self, interface: &Interface) -> Option<Receiver<T>> {
+        unimplemented!()
+    }
+
+    pub fn incoming_sync<T: Input>(&self, interface: &Interface) -> Option<Receiver<T>> {
+        unimplemented!()
+    }
+
+    pub fn wait_any<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>) {
+        unimplemented!()
+    }
+
+    pub fn wait_any_for<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>, wait: Duration)
+                            -> Option<()> {
         unimplemented!()
     }
 }
