@@ -200,11 +200,28 @@ impl OwnedThread {
     }
 }
 
+/// Publicity defines who can initiate communication with selected thread.
+#[derive(Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
+pub enum Publicity {
+    /// All external threads can initiate communication with selected thread.
+    Public,
+
+    /// Only threads from the same or descendant packages can initiate communication.
+    Package,
+
+    /// No threads from the same package can initiate communication but descendant threads can.
+    Descendant,
+
+    /// No threads can initiate communication with selected thread.
+    Private,
+}
+
 /// General information about thread in the network.
 #[derive(Clone)]
 pub struct Thread {
     instance: Arc<InstanceId>,
     state: State,
+    publicity: Publicity,
 
     has_powersave_notif: bool,
     has_powersave_disable_notif: bool,
@@ -227,6 +244,7 @@ impl Variable for Thread {}
 pub struct ThreadBuilder<'a> {
     pub local_path: LocalPath<'a>,
     pub ty: Type,
+    pub publicity: Publicity,
 }
 
 pub enum ThreadBuildError {
