@@ -21,24 +21,6 @@ pub enum State {
     PausedCeaseRequested,
 }
 
-/// System notification that thread can subscribe to.
-#[derive(Clone, Copy, Eq, PartialEq)]
-pub enum Notification {
-    /// Powersave mode turned on.
-    Powersave,
-
-    /// Powersave mode turned off.
-    PowersaveDisabled,
-}
-
-impl Notification {
-    /// Subscribe current thread to given notification.
-    pub fn subscribe(self) -> Self {
-        OwnedThread::current().subscribe_to(self);
-        self
-    }
-}
-
 impl State {
     pub fn is_running(&self) -> bool {
         State::Running == *self
@@ -182,18 +164,6 @@ impl OwnedThread {
         unimplemented!()
     }
 
-    pub fn subscribe_to(&mut self, notif: Notification) {
-        unimplemented!()
-    }
-
-    pub fn unsubscribe_from(&mut self, notif: Notification) {
-        unimplemented!()
-    }
-
-    pub fn is_subscriber(&self, notif: Notification) -> bool {
-        unimplemented!()
-    }
-
     /// Get current thread handle.
     pub fn current() -> Self {
         unimplemented!()
@@ -260,11 +230,5 @@ pub enum ThreadBuildError {
 impl<'a> ThreadBuilder<'a> {
     pub fn build(&self) -> Result<OwnedThread, ThreadBuildError> {
         kobzar_env().network_mut().create_thread(self)
-    }
-
-    /// Build thread without getting ownership over it. Only general information will be available
-    /// and creator will not be able to influence the created thread.
-    pub fn build_unowned(&self) -> Result<Thread, ThreadBuildError> {
-        unimplemented!()
     }
 }
