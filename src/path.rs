@@ -15,6 +15,7 @@ use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
 use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
 use alloc::sync::Arc;
+use alloc::rc::Rc;
 
 /// Unique identifier of the thread instance inside of the network.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
@@ -59,7 +60,7 @@ pub struct Version(u32, u32, u32);
 
 #[derive(Clone, PartialEq)]
 pub struct InstanceId {
-    interface: Interface,
+    interface: Rc<Interface>,
     uid: Uid,
 }
 
