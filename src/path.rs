@@ -17,6 +17,7 @@ use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, Thread, Perfor
 use alloc::sync::Arc;
 use alloc::rc::Rc;
 use core::time::Duration;
+use crate::msg::{Receiver, Error as MessagingError, Output, Sender, Input};
 
 /// Unique identifier of the thread instance inside of the network.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
@@ -155,4 +156,29 @@ pub trait Network {
                               -> Result<(), PerformancePolicy>;
 
     fn current_thread(&self) -> &'static mut OwnedThread;
+
+    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MessagingError>;
+
+    fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MessagingError>;
+
+    fn rendezvous_for<O: Output>(&self, sender: &Sender<O>, msg: &O, duration: Duration)
+                                 -> Result<Option<()>, MessagingError>;
+
+    fn recv<I: Input>(&self, recv: &Receiver<I>) -> Result<Option<I>, MessagingError>;
+
+    fn recv_sync<I: Input>(&self, recv: &Receiver<I>) -> Result<I, MessagingError>;
+
+    fn recv_sync_for<I: Input>(&self, recv: &Receiver<I>, duration: Duration)
+                               -> Result<Option<I>, MessagingError>;
+
+    unsafe fn new_receiver<I: Input>(&self, interface: &Rc<Interface>) -> Option<Receiver<I>>;
+
+    unsafe fn new_receiver_sync<I: Input>(&self, interface: &Rc<Interface>) -> Receiver<I>;
+
+    fn has_incoming(&self) -> bool;
+
+    fn wait_any<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>);
+
+    fn wait_any_for<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>, wait: Duration)
+                        -> Option<()>;
 }

@@ -1,11 +1,13 @@
 #![allow(dead_code)]
 use crate::{KobzarEnv, PrivateKobzarEnv, Uid};
-use crate::path::{Network, FindInstanceRequest, InstanceId};
+use crate::path::{Network, FindInstanceRequest, InstanceId, Interface};
 use crate::rsc::{Variable};
 use smallvec::SmallVec;
 use crate::thread::{OwnedThread, ThreadBuildError, ThreadBuilder, PerformancePolicy};
 use alloc::sync::Arc;
 use core::time::Duration;
+use crate::msg::{Sender, Receiver, Error, Output, Input};
+use smallvec::alloc::rc::Rc;
 
 pub struct UnimplementedEnv;
 pub struct UnimplementedNetwork;
@@ -71,6 +73,50 @@ impl Network for UnimplementedNetwork {
     }
 
     fn current_thread(&self) -> &'static mut OwnedThread {
+        unimplemented!()
+    }
+
+    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), Error> {
+        unimplemented!()
+    }
+
+    fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), Error> {
+        unimplemented!()
+    }
+
+    fn rendezvous_for<O: Output>(&self, sender: &Sender<O>, msg: &O, duration: Duration) -> Result<Option<()>, Error> {
+        unimplemented!()
+    }
+
+    fn recv<I: Input>(&self, recv: &Receiver<I>) -> Result<Option<I>, Error> {
+        unimplemented!()
+    }
+
+    fn recv_sync<I: Input>(&self, recv: &Receiver<I>) -> Result<I, Error> {
+        unimplemented!()
+    }
+
+    fn recv_sync_for<I: Input>(&self, recv: &Receiver<I>, duration: Duration) -> Result<Option<I>, Error> {
+        unimplemented!()
+    }
+
+    unsafe fn new_receiver<I: Input>(&self, interface: &Rc<Interface>) -> Option<Receiver<I>> {
+        unimplemented!()
+    }
+
+    unsafe fn new_receiver_sync<I: Input>(&self, interface: &Rc<Interface>) -> Receiver<I> {
+        unimplemented!()
+    }
+
+    fn has_incoming(&self) -> bool {
+        unimplemented!()
+    }
+
+    fn wait_any<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>) {
+        unimplemented!()
+    }
+
+    fn wait_any_for<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>, wait: Duration) -> Option<()> {
         unimplemented!()
     }
 }
