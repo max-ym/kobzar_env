@@ -4,7 +4,7 @@ use crate::path::{LocalPath, Network, InstanceId, Interface};
 use crate::{kobzar_env, KobzarEnv, Uid};
 use core::ops::Deref;
 use crate::rsc::{Variable, Handle};
-use alloc::sync::Arc;
+use alloc::rc::Rc;
 
 pub type Priority = f32;
 
@@ -122,17 +122,17 @@ impl Deref for OwnedThread {
 impl OwnedThread {
     /// Allow execution of this thread.
     pub fn allow_run(&mut self) {
-        unimplemented!()
+        kobzar_env().network_mut().allow_run(self)
     }
 
     /// Request pausing of this thread to prevent further execution until run is requested.
     pub fn request_pause(&mut self) {
-        unimplemented!()
+        kobzar_env().network_mut().request_pause(self)
     }
 
     /// Notify thread to cease.
     pub fn request_cease(&mut self) {
-        unimplemented!()
+        kobzar_env().network_mut().request_cease(self)
     }
 
     /// Kill thread immediately. Thread may be secured from killing. On startup each
@@ -144,29 +144,35 @@ impl OwnedThread {
     /// Err is returned if thread is guarded.
     // TODO verify killing policies for efficiency
     pub unsafe fn brute_kill(&mut self) -> Result<(), ()> {
-        unimplemented!()
+        kobzar_env().network_mut().brutal_kill(self)
     }
 
     /// Sleep for at least given duration.
     pub fn sleep(&mut self, duration: Duration) {
-        unimplemented!()
+        kobzar_env().network_mut().sleep(self, duration)
     }
 
     /// Try changing the performance policy. Err with most supported policy will be returned if
     /// thread tries to use one it has no permissions for.
     pub fn set_performance_policy(&mut self, policy: PerformancePolicy)
                                   -> Result<(), PerformancePolicy> {
-        unimplemented!()
+        match kobzar_env().network().set_performance_policy(self, policy) {
+            Ok(_) => {
+                self.thread.performance = policy;
+                Ok(())
+            },
+            Err(e) => Err(e),
+        }
     }
 
     /// Get current performance policy.
     pub fn performance_policy(&self) -> PerformancePolicy {
-        unimplemented!()
+        self.thread.performance
     }
 
     /// Get current thread handle.
-    pub fn current() -> Self {
-        unimplemented!()
+    pub fn current() -> &'static mut OwnedThread {
+        kobzar_env().network().current_thread()
     }
 }
 
@@ -189,9 +195,10 @@ pub enum Publicity {
 /// General information about thread in the network.
 #[derive(Clone)]
 pub struct Thread {
-    instance: Arc<InstanceId>,
+    instance: Rc<InstanceId>,
     state: State,
     publicity: Publicity,
+    performance: PerformancePolicy,
 
     has_powersave_notif: bool,
     has_powersave_disable_notif: bool,
@@ -199,7 +206,7 @@ pub struct Thread {
 
 impl Thread {
     pub fn thread_state(&self) -> State {
-        unimplemented!()
+        self.state
     }
 }
 

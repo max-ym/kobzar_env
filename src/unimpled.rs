@@ -3,8 +3,9 @@ use crate::{KobzarEnv, PrivateKobzarEnv, Uid};
 use crate::path::{Network, FindInstanceRequest, InstanceId};
 use crate::rsc::{Variable};
 use smallvec::SmallVec;
-use crate::thread::{OwnedThread, ThreadBuildError, ThreadBuilder};
+use crate::thread::{OwnedThread, ThreadBuildError, ThreadBuilder, PerformancePolicy};
 use alloc::sync::Arc;
+use core::time::Duration;
 
 pub struct UnimplementedEnv;
 pub struct UnimplementedNetwork;
@@ -41,7 +42,35 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn create_thread(&mut self, _: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError> {
+    fn create_thread(&self, _: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError> {
+        unimplemented!()
+    }
+
+    fn allow_run(&self, t: &OwnedThread) {
+        unimplemented!()
+    }
+
+    fn request_pause(&self, t: &OwnedThread) {
+        unimplemented!()
+    }
+
+    fn request_cease(&self, t: &OwnedThread) {
+        unimplemented!()
+    }
+
+    fn brutal_kill(&self, t: &OwnedThread) -> Result<(), ()> {
+        unimplemented!()
+    }
+
+    fn sleep(&self, t: &OwnedThread, duration: Duration) {
+        unimplemented!()
+    }
+
+    fn set_performance_policy(&self, t: &OwnedThread, policy: PerformancePolicy) -> Result<(), PerformancePolicy> {
+        unimplemented!()
+    }
+
+    fn current_thread(&self) -> &'static mut OwnedThread {
         unimplemented!()
     }
 }

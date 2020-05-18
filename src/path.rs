@@ -13,9 +13,10 @@
 
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
-use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError};
+use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, Thread, PerformancePolicy};
 use alloc::sync::Arc;
 use alloc::rc::Rc;
+use core::time::Duration;
 
 /// Unique identifier of the thread instance inside of the network.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
@@ -138,5 +139,20 @@ pub trait Network {
     fn find_package_instances(&self, find: &FindInstanceRequest)
                               -> SmallVec<[Arc<InstanceId>; 16]>;
 
-    fn create_thread(&mut self, t: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError>;
+    fn create_thread(&self, t: &ThreadBuilder) -> Result<OwnedThread, ThreadBuildError>;
+
+    fn allow_run(&self, t: &OwnedThread);
+
+    fn request_pause(&self, t: &OwnedThread);
+
+    fn request_cease(&self, t: &OwnedThread);
+
+    fn brutal_kill(&self, t: &OwnedThread) -> Result<(), ()>;
+
+    fn sleep(&self, t: &OwnedThread, duration: Duration);
+
+    fn set_performance_policy(&self, t: &OwnedThread, policy: PerformancePolicy)
+                              -> Result<(), PerformancePolicy>;
+
+    fn current_thread(&self) -> &'static mut OwnedThread;
 }
