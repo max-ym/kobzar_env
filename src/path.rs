@@ -13,7 +13,7 @@
 
 use smallvec::SmallVec;
 use crate::{kobzar_env, KobzarEnv};
-use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, Thread, PerformancePolicy};
+use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, PerformancePolicy};
 use alloc::sync::Arc;
 use alloc::rc::Rc;
 use core::time::Duration;

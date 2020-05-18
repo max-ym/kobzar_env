@@ -48,27 +48,28 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn allow_run(&self, t: &OwnedThread) {
+    fn allow_run(&self, _: &OwnedThread) {
         unimplemented!()
     }
 
-    fn request_pause(&self, t: &OwnedThread) {
+    fn request_pause(&self, _: &OwnedThread) {
         unimplemented!()
     }
 
-    fn request_cease(&self, t: &OwnedThread) {
+    fn request_cease(&self, _: &OwnedThread) {
         unimplemented!()
     }
 
-    fn brutal_kill(&self, t: &OwnedThread) -> Result<(), ()> {
+    fn brutal_kill(&self, _: &OwnedThread) -> Result<(), ()> {
         unimplemented!()
     }
 
-    fn sleep(&self, t: &OwnedThread, duration: Duration) {
+    fn sleep(&self, _: &OwnedThread, _: Duration) {
         unimplemented!()
     }
 
-    fn set_performance_policy(&self, t: &OwnedThread, policy: PerformancePolicy) -> Result<(), PerformancePolicy> {
+    fn set_performance_policy(&self, _: &OwnedThread, _: PerformancePolicy)
+                              -> Result<(), PerformancePolicy> {
         unimplemented!()
     }
 
@@ -76,35 +77,36 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), Error> {
+    fn send<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), Error> {
         unimplemented!()
     }
 
-    fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), Error> {
+    fn rendezvous<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), Error> {
         unimplemented!()
     }
 
-    fn rendezvous_for<O: Output>(&self, sender: &Sender<O>, msg: &O, duration: Duration) -> Result<Option<()>, Error> {
+    fn rendezvous_for<O: Output>(&self, _: &Sender<O>, _: &O, _: Duration)
+                                 -> Result<Option<()>, Error> {
         unimplemented!()
     }
 
-    fn recv<I: Input>(&self, recv: &Receiver<I>) -> Result<Option<I>, Error> {
+    fn recv<I: Input>(&self, _: &Receiver<I>) -> Result<Option<I>, Error> {
         unimplemented!()
     }
 
-    fn recv_sync<I: Input>(&self, recv: &Receiver<I>) -> Result<I, Error> {
+    fn recv_sync<I: Input>(&self, _: &Receiver<I>) -> Result<I, Error> {
         unimplemented!()
     }
 
-    fn recv_sync_for<I: Input>(&self, recv: &Receiver<I>, duration: Duration) -> Result<Option<I>, Error> {
+    fn recv_sync_for<I: Input>(&self, _: &Receiver<I>, _: Duration) -> Result<Option<I>, Error> {
         unimplemented!()
     }
 
-    unsafe fn new_receiver<I: Input>(&self, interface: &Rc<Interface>) -> Option<Receiver<I>> {
+    unsafe fn new_receiver<I: Input>(&self, _: &Rc<Interface>) -> Option<Receiver<I>> {
         unimplemented!()
     }
 
-    unsafe fn new_receiver_sync<I: Input>(&self, interface: &Rc<Interface>) -> Receiver<I> {
+    unsafe fn new_receiver_sync<I: Input>(&self, _: &Rc<Interface>) -> Receiver<I> {
         unimplemented!()
     }
 
@@ -112,11 +114,11 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn wait_any<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>) {
+    fn wait_any<'a>(&self, _: impl Iterator<Item=&'a Interface>) {
         unimplemented!()
     }
 
-    fn wait_any_for<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>, wait: Duration) -> Option<()> {
+    fn wait_any_for<'a>(&self, _: impl Iterator<Item=&'a Interface>, _: Duration) -> Option<()> {
         unimplemented!()
     }
 }

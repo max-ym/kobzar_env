@@ -18,7 +18,6 @@ pub mod msg;
 mod unimpled;
 pub use unimpled::*;
 use crate::rsc::Variable;
-use core::time::Duration;
 
 trait KobzarEnv {
     type Network: Network;
