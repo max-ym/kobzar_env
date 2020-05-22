@@ -17,7 +17,7 @@ use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, PerformancePol
 use alloc::sync::Arc;
 use alloc::rc::Rc;
 use core::time::Duration;
-use crate::msg::{Receiver, Error as MessagingError, Output, Sender, Input};
+use crate::msg::{Receiver, Output, Sender, Input, SendError, ReceiveError};
 use core::ops::Range;
 use arrayvec::ArrayVec;
 
@@ -191,23 +191,26 @@ pub(crate) trait Network {
 
     fn current_thread(&self) -> &'static mut OwnedThread;
 
-    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MessagingError>;
+    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), SendError>;
 
-    fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MessagingError>;
+    fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), SendError>;
 
     fn rendezvous_for<O: Output>(&self, sender: &Sender<O>, msg: &O, duration: Duration)
-                                 -> Result<Option<()>, MessagingError>;
+                                 -> Result<Option<()>, SendError>;
 
-    fn recv<I: Input>(&self, recv: &Receiver<I>) -> Result<Option<I>, MessagingError>;
+    fn recv<I: Input>(&self, recv: &Receiver<I>) -> Result<Option<I>, ReceiveError>;
 
-    fn recv_sync<I: Input>(&self, recv: &Receiver<I>) -> Result<I, MessagingError>;
+    fn recv_sync<I: Input>(&self, recv: &Receiver<I>) -> Result<I, ReceiveError>;
 
     fn recv_sync_for<I: Input>(&self, recv: &Receiver<I>, duration: Duration)
-                               -> Result<Option<I>, MessagingError>;
+                               -> Result<Option<I>, ReceiveError>;
 
     unsafe fn new_receiver<I: Input>(&self, interface: &Rc<Interface>) -> Option<Receiver<I>>;
 
     unsafe fn new_receiver_sync<I: Input>(&self, interface: &Rc<Interface>) -> Receiver<I>;
+
+    unsafe fn new_receiver_sync_for<I: Input>(&self, time: Duration, int: &Rc<Interface>)
+                                              -> Option<Receiver<I>>;
 
     fn has_incoming(&self) -> bool;
 

@@ -6,7 +6,7 @@ use smallvec::SmallVec;
 use crate::thread::{OwnedThread, ThreadBuildError, ThreadBuilder, PerformancePolicy};
 use alloc::sync::Arc;
 use core::time::Duration;
-use crate::msg::{Sender, Receiver, Error, Output, Input};
+use crate::msg::{Sender, Receiver, ReceiveError, Output, Input, SendError};
 use smallvec::alloc::rc::Rc;
 
 pub struct UnimplementedEnv;
@@ -77,28 +77,28 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn send<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), Error> {
+    fn send<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError> {
         unimplemented!()
     }
 
-    fn rendezvous<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), Error> {
+    fn rendezvous<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError> {
         unimplemented!()
     }
 
     fn rendezvous_for<O: Output>(&self, _: &Sender<O>, _: &O, _: Duration)
-                                 -> Result<Option<()>, Error> {
+                                 -> Result<Option<()>, SendError> {
         unimplemented!()
     }
 
-    fn recv<I: Input>(&self, _: &Receiver<I>) -> Result<Option<I>, Error> {
+    fn recv<I: Input>(&self, _: &Receiver<I>) -> Result<Option<I>, ReceiveError> {
         unimplemented!()
     }
 
-    fn recv_sync<I: Input>(&self, _: &Receiver<I>) -> Result<I, Error> {
+    fn recv_sync<I: Input>(&self, _: &Receiver<I>) -> Result<I, ReceiveError> {
         unimplemented!()
     }
 
-    fn recv_sync_for<I: Input>(&self, _: &Receiver<I>, _: Duration) -> Result<Option<I>, Error> {
+    fn recv_sync_for<I: Input>(&self, _: &Receiver<I>, _: Duration) -> Result<Option<I>, ReceiveError> {
         unimplemented!()
     }
 
@@ -107,6 +107,11 @@ impl Network for UnimplementedNetwork {
     }
 
     unsafe fn new_receiver_sync<I: Input>(&self, _: &Rc<Interface>) -> Receiver<I> {
+        unimplemented!()
+    }
+
+    unsafe fn new_receiver_sync_for<I: Input>(&self, time: Duration, int: &Rc<Interface>)
+                                              -> Option<Receiver<I>> {
         unimplemented!()
     }
 

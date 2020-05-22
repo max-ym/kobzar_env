@@ -7,28 +7,46 @@ use crate::path::{Interface, Network};
 use core::time::Duration;
 use crate::{kobzar_env, KobzarEnv};
 
+/// Receiver is used to receive messages from other selected thread by selected interface that
+/// is supported by the sending thread. Receiver has exact input type which corresponds to
+/// the one defined by the interface.
 pub struct Receiver<I: Input> {
     src: Rc<Thread>,
     interface: Rc<Interface>,
     _input: PhantomData<I>,
 }
 
+/// Sender is used to send messages to some defined destination thread by selected interface
+/// that is supported by receiving thread. Sender has exact input type which corresponds to
+/// the one defined by the interface and this type is expected by receiver.
 pub struct Sender<O: Output> {
     dest: Rc<Thread>,
     interface: Rc<Interface>,
     _output: PhantomData<O>,
 }
 
-/// Message that can be sent through the pipe.
+/// Message that can be received.
 pub trait Input: Sized {
+    /// Interface that is used in communication.
     fn interface() -> &'static Rc<Interface>;
 
+    /// Create an receiver for the new mail in the mailbox of given type. If no mail
+    /// was found None is returned.
     fn get() -> Option<Receiver<Self>> {
         unsafe { Receiver::new(Self::interface()) }
     }
 
+    /// Create an receiver for the new mail in the mailbox of given type. If no mail was found
+    /// then wait until one arrives indefinitely.
     fn get_sync() -> Receiver<Self> {
         unsafe { Receiver::new_sync(Self::interface()) }
+    }
+
+    /// Create an receiver for the new mail in the mailbox of given type. If no mail was found
+    /// then wait until one arrives for given amount of time. None is returned if time
+    /// elapses.
+    unsafe fn get_sync_for(time: Duration) -> Option<Receiver<Self>> {
+        Receiver::new_sync_for(time, Self::interface())
     }
 
     /// Construct object from bytes received from the Receiver.
@@ -40,15 +58,25 @@ pub trait Output {
     fn as_msg_bytes(&self) -> &[u8];
 }
 
-pub enum Error {
+/// Error encountered on receiving.
+pub enum ReceiveError {
     /// Received has died.
     Died,
 
     /// Connection with this thread was lost.
     ConnectionLost,
 
-    /// Interface used to communicate is not supported by receiver.
+    /// Interface used to communicate is not supported by the receiver.
     Unsupported,
+}
+
+/// Error encountered on sending.
+pub enum SendError {
+    /// Received has died.
+    Died,
+
+    /// Connection with this thread was lost.
+    ConnectionLost,
 }
 
 impl<O: Output> Sender<O> {
@@ -58,7 +86,7 @@ impl<O: Output> Sender<O> {
     /// If pipe has no buffer that this is the same as [`rendezvous`] method.
     ///
     /// Error will occur if thread is no longer alive or connection is lost.
-    pub fn send(&self, msg: &O) -> Result<(), Error> {
+    pub fn send(&self, msg: &O) -> Result<(), SendError> {
         kobzar_env().network().send(self, msg)
     }
 
@@ -66,11 +94,11 @@ impl<O: Output> Sender<O> {
     /// receiver actually acquired the message but it still does not guarantee that the
     /// message was read as receiver can discard it. This method will execute
     /// as soon as all previous messages will get received.
-    pub fn rendezvous(&self, msg: &O) -> Result<(), Error> {
+    pub fn rendezvous(&self, msg: &O) -> Result<(), SendError> {
         kobzar_env().network().rendezvous(self, msg)
     }
 
-    pub fn rendezvous_for(&self, msg: &O, duration: Duration) -> Result<Option<()>, Error> {
+    pub fn rendezvous_for(&self, msg: &O, duration: Duration) -> Result<Option<()>, SendError> {
         kobzar_env().network().rendezvous_for(self, msg, duration)
     }
 }
@@ -86,20 +114,24 @@ impl<I: Input> Receiver<I> {
         kobzar_env().network().new_receiver(interface)
     }
 
+    pub unsafe fn new_sync_for(time: Duration, interface: &Rc<Interface>) -> Option<Self> {
+        kobzar_env().network().new_receiver_sync_for(time, interface)
+    }
+
     /// The same as [new] but waits until given interface mail is received.
     pub unsafe fn new_sync(interface: &Rc<Interface>) -> Self {
         kobzar_env().network().new_receiver_sync(interface)
     }
 
-    pub fn recv(&self) -> Result<Option<I>, Error> {
+    pub fn recv(&self) -> Result<Option<I>, ReceiveError> {
         kobzar_env().network().recv(self)
     }
 
-    pub fn recv_sync(&self) -> Result<I, Error> {
+    pub fn recv_sync(&self) -> Result<I, ReceiveError> {
         kobzar_env().network().recv_sync(self)
     }
 
-    pub fn recv_sync_for(&self, wait: Duration) -> Result<Option<I>, Error> {
+    pub fn recv_sync_for(&self, wait: Duration) -> Result<Option<I>, ReceiveError> {
         kobzar_env().network().recv_sync_for(self, wait)
     }
 }
