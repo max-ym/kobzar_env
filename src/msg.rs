@@ -53,8 +53,9 @@ pub trait Input: Sized {
     fn from_msg_bytes(b: &[u8]) -> Self;
 }
 
+/// Data that can be sent by the Sender.
 pub trait Output {
-    /// Bytes that will be sent by the pipe.
+    /// Bytes that will be sent by the Sender.
     fn as_msg_bytes(&self) -> &[u8];
 }
 
@@ -136,15 +137,18 @@ impl<I: Input> Receiver<I> {
     }
 }
 
+/// Whether thread has any unread messages in the mailbox.
 pub fn has_incoming() -> bool {
     kobzar_env().network().has_incoming()
 }
 
+/// Wait for any message by given interface from any thread indefinitely.
 pub fn wait_any<'a>(interfaces: impl Iterator<Item=&'a Interface>) {
     kobzar_env().network().wait_any(interfaces)
 }
 
-pub fn wait_any_for<'a>(interfaces: impl Iterator<Item=&'a Interface>, wait: Duration)
+/// Wait for any message by given interface from any thread fot given time.
+pub fn wait_any_for<'a>(wait: Duration, interfaces: impl Iterator<Item=&'a Interface>)
                         -> Option<()> {
-    kobzar_env().network().wait_any_for(interfaces, wait)
+    kobzar_env().network().wait_any_for(wait, interfaces)
 }

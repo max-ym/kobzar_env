@@ -216,6 +216,6 @@ pub(crate) trait Network {
 
     fn wait_any<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>);
 
-    fn wait_any_for<'a>(&self, interfaces: impl Iterator<Item=&'a Interface>, wait: Duration)
+    fn wait_any_for<'a>(&self, wait: Duration, interfaces: impl Iterator<Item=&'a Interface>)
                         -> Option<()>;
 }

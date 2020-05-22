@@ -123,7 +123,7 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn wait_any_for<'a>(&self, _: impl Iterator<Item=&'a Interface>, _: Duration) -> Option<()> {
+    fn wait_any_for<'a>(&self, _: Duration, _: impl Iterator<Item=&'a Interface>) -> Option<()> {
         unimplemented!()
     }
 }
