@@ -34,7 +34,7 @@ impl PrivateKobzarEnv for UnimplementedEnv {
     }
 }
 
-pub fn kobzar_env() -> &'static mut UnimplementedEnv {
+pub(crate) fn kobzar_env() -> &'static mut UnimplementedEnv {
     unimplemented!()
 }
 
