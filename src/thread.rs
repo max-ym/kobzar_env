@@ -6,8 +6,12 @@ use core::ops::Deref;
 use crate::rsc::{Variable, Handle};
 use alloc::rc::Rc;
 
+/// Priority identifies relative importance of the thread over other one. This helps scheduler to
+/// make correct decisions over which threads should be executed next and what time they should
+/// run.
 pub type Priority = f32;
 
+/// State of the thread.
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub enum State {
     Running,
@@ -55,6 +59,7 @@ impl State {
     }
 }
 
+/// Performance policy defines the way CPU time is allocated for given thread.
 #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd)]
 pub enum PerformancePolicy {
     /// Request best performance possible for given thread.
@@ -64,6 +69,7 @@ pub enum PerformancePolicy {
     Normal,
 }
 
+/// Detailed information about how and when to run this task.
 #[derive(Clone, PartialEq)]
 pub struct TaskDetail {
     /// Estimated time left for execution to end. It may go negative
@@ -205,7 +211,8 @@ pub struct Thread {
 }
 
 impl Thread {
-    pub fn thread_state(&self) -> State {
+    /// State of the thread when the snapshot was taken.
+    pub fn state(&self) -> State {
         self.state
     }
 }
@@ -218,6 +225,7 @@ impl Handle for Thread {
 
 impl Variable for Thread {}
 
+/// Information that is required to build a thread.
 pub struct ThreadBuilder<'a, 'b> {
     pub local_path: LocalPath<'a>,
     pub ty: Type,
