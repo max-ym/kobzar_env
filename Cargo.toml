@@ -12,3 +12,4 @@ dummy = []
 [dependencies]
 smallvec = "1.4"
 time = "0.2"
+arrayvec = "0.5"

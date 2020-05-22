@@ -18,18 +18,31 @@ use alloc::sync::Arc;
 use alloc::rc::Rc;
 use core::time::Duration;
 use crate::msg::{Receiver, Error as MessagingError, Output, Sender, Input};
+use core::ops::Range;
+use arrayvec::ArrayVec;
 
-/// Unique identifier of the thread instance inside of the network.
+type NodeVec<'a> = ArrayVec<[&'a str; 8]>;
+
+/// Unique identifier of the object inside of the network. These include threads and interfaces.
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub struct Uid(pub u64);
 
 /// Path of some resource. It consists of up to 8 nodes. Path entry
 /// contains only pointers to string slices and generally Clone operation is
 /// cheap.
+///
+/// This path is never created by developer and instead it is always provided by
+/// the network to describe existing resources.
 // TODO impl node types.
 #[derive(Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Path {
-    nodes: [&'static str; 8],
+    nodes: NodeVec<'static>,
+}
+
+impl Path {
+    pub fn nodes(&self) -> &NodeVec<'static> {
+        &self.nodes
+    }
 }
 
 impl PartialEq for Path {
@@ -43,23 +56,38 @@ impl PartialEq for Path {
     }
 }
 
-impl<'a> From<&'a Path> for LocalPath<'a> {
+impl<'a> From<&'a Path> for LocalPath<'static> {
     fn from(p: &'a Path) -> Self {
         LocalPath {
-            nodes: p.nodes,
+            nodes: p.nodes.clone(),
         }
     }
 }
 
+/// Local path is a path constructed from local str slices. It is functionally the same as
+/// [Path].
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct LocalPath<'a> {
-    nodes: [&'a str; 8],
+    nodes: NodeVec<'a>,
+}
+
+impl<'a> LocalPath<'a> {
+    pub fn nodes(&self) -> &NodeVec<'a> {
+        &self.nodes
+    }
+
+    pub fn new(nodes: NodeVec<'a>) -> Self {
+        LocalPath {
+            nodes,
+        }
+    }
 }
 
 /// Version of the app in form `major.minor.patch`.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Version(u32, u32, u32);
+pub struct Version(pub u32, pub u32, pub u32);
 
+/// Interface instance. Thread ID that is an implementor of selected interface.
 #[derive(Clone, PartialEq)]
 pub struct InstanceId {
     interface: Rc<Interface>,
@@ -67,49 +95,51 @@ pub struct InstanceId {
 }
 
 impl InstanceId {
+    /// Path of an interface that define given instance.
     pub fn path(&self) -> &Path {
         &self.interface.path
     }
 
+    /// Version of the interface of this instance.
     pub fn version(&self) -> Version {
         self.interface.version
     }
 
+    /// UID of the instance.
     pub fn uid(&self) -> Uid {
         self.uid
     }
 }
 
+/// Interface defines a function that should be provided by the server that implements it.
+/// Each thread implements set of interfaces. At least, thread implements an interface that
+/// declares this thread type so it can be instantiated.
 #[derive(Clone, PartialEq)]
 pub struct Interface {
     path: Path,
     version: Version,
 }
 
-// pub struct PackageInstances(SmallVec<[Harc<InstanceId>; 16]>);
-//
-// impl Deref for PackageInstances {
-//     type Target = SmallVec<[Harc<InstanceId>; 16]>;
-//
-//     fn deref(&self) -> &Self::Target {
-//         &self.0
-//     }
-// }
-//
-// impl DerefMut for PackageInstances {
-//     fn deref_mut(&mut self) -> &mut Self::Target {
-//         &mut self.0
-//     }
-// }
-//
-// impl PackageInstances {}
+impl Interface {
+    /// Path of given interface.
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
 
+    /// Version of given interface.
+    pub fn version(&self) -> Version {
+        self.version
+    }
+}
+
+/// Request to find instances of given interface with specific version.
 pub struct FindInstanceRequest<'a> {
     path: LocalPath<'a>,
-    version: Option<Version>,
+    version: Option<Range<Version>>,
 }
 
 impl<'a> FindInstanceRequest<'a> {
+    /// Create new request to search for interface with given path.
     pub fn new(path: LocalPath<'a>) -> Self {
         FindInstanceRequest {
             path,
@@ -117,25 +147,29 @@ impl<'a> FindInstanceRequest<'a> {
         }
     }
 
-    pub fn with_version(mut self, version: Version) -> Self {
+    /// Search for implementers that match version constraints.
+    pub fn with_version(mut self, version: Range<Version>) -> Self {
         self.version = Some(version);
         self
     }
 
+    /// Execute request and find all implementers.
     pub fn find(&self) -> SmallVec<[Arc<InstanceId>; 16]> {
         kobzar_env().network().find_package_instances(self)
     }
 
-    pub fn path(&self) -> &LocalPath {
+    /// Path of the interface.
+    pub fn path(&self) -> &LocalPath<'a> {
         &self.path
     }
 
-    pub fn version(&self) -> &Option<Version> {
+    /// Version constraints of the interface.
+    pub fn version(&self) -> &Option<Range<Version>> {
         &self.version
     }
 }
 
-pub trait Network {
+pub(crate) trait Network {
     /// Find instances that have this package name.
     fn find_package_instances(&self, find: &FindInstanceRequest)
                               -> SmallVec<[Arc<InstanceId>; 16]>;
