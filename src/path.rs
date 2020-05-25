@@ -118,6 +118,7 @@ impl InstanceId {
 pub struct Interface {
     path: Path,
     version: Version,
+    is_singleton: bool,
 }
 
 impl Interface {
@@ -129,6 +130,12 @@ impl Interface {
     /// Version of given interface.
     pub fn version(&self) -> Version {
         self.version
+    }
+
+    /// Whether implementer of this interface should be singleton. If so, only one implementer
+    /// will be launched in the same time.
+    pub fn is_singleton(&self) -> bool {
+        self.is_singleton
     }
 }
 
