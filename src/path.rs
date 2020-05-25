@@ -21,6 +21,8 @@ use crate::msg::{Receiver, Output, Sender, Input, SendError, ReceiveError};
 use core::ops::Range;
 use arrayvec::ArrayVec;
 use alloc::vec::Vec;
+use serde::{Serialize, Deserialize, Serializer};
+use alloc::string::String;
 
 type NodeVec<'a> = ArrayVec<[&'a str; 8]>;
 
@@ -40,6 +42,11 @@ pub struct Path {
     nodes: NodeVec<'static>,
 }
 
+#[derive(Clone, Eq, PartialOrd, Ord, Hash, Deserialize)]
+pub struct OwnedPath {
+    nodes: Vec<String>,
+}
+
 impl Path {
     pub fn nodes(&self) -> &NodeVec<'static> {
         &self.nodes
@@ -47,6 +54,17 @@ impl Path {
 }
 
 impl PartialEq for Path {
+    fn eq(&self, other: &Self) -> bool {
+        for i in 0..self.nodes.len() {
+            if self.nodes[i] != other.nodes[i] {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl PartialEq for OwnedPath {
     fn eq(&self, other: &Self) -> bool {
         for i in 0..self.nodes.len() {
             if self.nodes[i] != other.nodes[i] {
@@ -84,8 +102,16 @@ impl<'a> LocalPath<'a> {
     }
 }
 
+impl<'a> Serialize for LocalPath<'a> {
+    fn serialize<S>(&self, serializer: S)
+                    -> Result<<S as Serializer>::Ok, <S as Serializer>::Error> where
+        S: Serializer {
+        self.nodes.as_slice().serialize(serializer)
+    }
+}
+
 /// Version of the app in form `major.minor.patch`.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct Version(pub u32, pub u32, pub u32);
 
 /// Interface instance. Thread ID that is an implementor of selected interface.
@@ -120,6 +146,7 @@ pub struct Interface {
     path: Path,
     version: Version,
     is_singleton: bool,
+    has_executable: bool,
     dependencies: Vec<Rc<Interface>>,
     implements: Vec<Rc<Interface>>,
 }
@@ -150,6 +177,12 @@ impl Interface {
     /// Interfaces that are also implemented by implementers of given interface.
     pub fn implements(&self) -> &Vec<Rc<Interface>> {
         &self.implements
+    }
+
+    /// Whether this interface has corresponding executable code to instantiate it as a
+    /// thread.
+    pub fn has_executable(&self) -> bool {
+        self.has_executable
     }
 }
 
