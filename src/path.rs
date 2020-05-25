@@ -121,6 +121,7 @@ pub struct Interface {
     version: Version,
     is_singleton: bool,
     dependencies: Vec<Rc<Interface>>,
+    implements: Vec<Rc<Interface>>,
 }
 
 impl Interface {
@@ -144,6 +145,11 @@ impl Interface {
     /// requested to be instantiated.
     pub fn dependencies(&self) -> &Vec<Rc<Interface>> {
         &self.dependencies
+    }
+
+    /// Interfaces that are also implemented by implementers of given interface.
+    pub fn implements(&self) -> &Vec<Rc<Interface>> {
+        &self.implements
     }
 }
 
