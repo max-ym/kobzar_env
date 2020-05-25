@@ -20,6 +20,7 @@ use core::time::Duration;
 use crate::msg::{Receiver, Output, Sender, Input, SendError, ReceiveError};
 use core::ops::Range;
 use arrayvec::ArrayVec;
+use alloc::vec::Vec;
 
 type NodeVec<'a> = ArrayVec<[&'a str; 8]>;
 
@@ -119,6 +120,7 @@ pub struct Interface {
     path: Path,
     version: Version,
     is_singleton: bool,
+    dependencies: Vec<Rc<Interface>>,
 }
 
 impl Interface {
@@ -136,6 +138,12 @@ impl Interface {
     /// will be launched in the same time.
     pub fn is_singleton(&self) -> bool {
         self.is_singleton
+    }
+
+    /// When launching implementer of this interface this list of interfaces may be
+    /// requested to be instantiated.
+    pub fn dependencies(&self) -> &Vec<Rc<Interface>> {
+        &self.dependencies
     }
 }
 
