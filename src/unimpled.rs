@@ -6,7 +6,7 @@ use smallvec::SmallVec;
 use crate::thread::{OwnedThread, ThreadBuildError, ThreadBuilder, PerformancePolicy};
 use alloc::sync::Arc;
 use core::time::Duration;
-use crate::msg::{Sender, Receiver, ReceiveError, Output, Input, SendError};
+use crate::msg::{Sender, Receiver, ReceiveError, Output, Input, SendError, MailboxSendError};
 use smallvec::alloc::rc::Rc;
 
 pub struct UnimplementedEnv;
@@ -77,7 +77,11 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
-    fn send<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError> {
+    fn send<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), MailboxSendError> {
+        unimplemented!()
+    }
+
+    fn send_when_available<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError> {
         unimplemented!()
     }
 

@@ -17,7 +17,7 @@ use crate::thread::{ThreadBuilder, OwnedThread, ThreadBuildError, PerformancePol
 use alloc::sync::Arc;
 use alloc::rc::Rc;
 use core::time::Duration;
-use crate::msg::{Receiver, Output, Sender, Input, SendError, ReceiveError};
+use crate::msg::{Receiver, Output, Sender, Input, SendError, ReceiveError, MailboxSendError};
 use core::ops::Range;
 use arrayvec::ArrayVec;
 use alloc::vec::Vec;
@@ -245,7 +245,9 @@ pub(crate) trait Network {
 
     fn current_thread(&self) -> &'static mut OwnedThread;
 
-    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), SendError>;
+    fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MailboxSendError>;
+
+    fn send_when_available<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError>;
 
     fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), SendError>;
 

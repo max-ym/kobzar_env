@@ -80,15 +80,28 @@ pub enum SendError {
     ConnectionLost,
 }
 
+pub enum MailboxSendError {
+    /// Normal send error.
+    Send(SendError),
+
+    /// Mailbox already has some mail pending. Mailbox can contain only one mail from
+    /// the same sender type.
+    Pending,
+}
+
 impl<O: Output> Sender<O> {
     /// Send message into mailbox. Note that this does not guarantee that the message
     /// will be received. Receiver may also discard the message or cease without reading.
     /// This method does not block and message will be buffered in current Pipe output buffer.
     /// If pipe has no buffer that this is the same as [`rendezvous`] method.
-    ///
-    /// Error will occur if thread is no longer alive or connection is lost.
-    pub fn send(&self, msg: &O) -> Result<(), SendError> {
+    pub fn send(&self, msg: &O) -> Result<(), MailboxSendError> {
         kobzar_env().network().send(self, msg)
+    }
+
+    /// The same as [send] but waits until mailbox is available. If any mail is pending this
+    /// function will block the thread.
+    pub fn send_when_available(&self, msg: &O) -> Result<(), SendError> {
+        kobzar_env().network().send_when_available(self, msg)
     }
 
     /// Send the message by making rendezvous with the receiver. This makes a guarantee that
