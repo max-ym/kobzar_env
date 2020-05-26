@@ -141,7 +141,7 @@ impl InstanceId {
 /// Interface defines a function that should be provided by the server that implements it.
 /// Each thread implements set of interfaces. At least, thread implements an interface that
 /// declares this thread type so it can be instantiated.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Eq)]
 pub struct Interface {
     path: Path,
     version: Version,
@@ -149,6 +149,13 @@ pub struct Interface {
     has_executable: bool,
     dependencies: Vec<Rc<Interface>>,
     implements: Vec<Rc<Interface>>,
+}
+
+impl PartialEq for Interface {
+    fn eq(&self, other: &Self) -> bool {
+        self.path == other.path &&
+            self.version == other.version
+    }
 }
 
 impl Interface {
