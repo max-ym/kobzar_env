@@ -104,6 +104,15 @@ impl<O: Output> Sender<O> {
         kobzar_env().network().send_when_available(self, msg)
     }
 
+    /// Send it's remaining processor time.
+    /// This will only work for threads on the same Computing Unit. In the case
+    /// send is possible the receiving thread will immediately resume its execution. It can send
+    /// remaining time back again. This can be used, for example, for calling memory manager
+    /// to allocate memory without waiting for it to have its turn for scheduling.
+    pub fn transfer_time(&self) -> Result<(), SendError> {
+        kobzar_env().network().transfer_time(self)
+    }
+
     /// Send the message by making rendezvous with the receiver. This makes a guarantee that
     /// receiver actually acquired the message but it still does not guarantee that the
     /// message was read as receiver can discard it. This method will execute

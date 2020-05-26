@@ -147,7 +147,6 @@ pub struct Interface {
     version: Version,
     is_singleton: bool,
     has_executable: bool,
-    can_transfer_time: bool,
     dependencies: Vec<Rc<Interface>>,
     implements: Vec<Rc<Interface>>,
 }
@@ -191,15 +190,6 @@ impl Interface {
     /// thread.
     pub fn has_executable(&self) -> bool {
         self.has_executable
-    }
-
-    /// Whether the thread which send the message through this interface can send it's remaining
-    /// processor time. This will only work for threads on the same Computing Unit. In the case
-    /// send is possible the receiving thread will immediately resume its execution. It can send
-    /// remaining time back again. This can be used, for example, for calling memory manager
-    /// to allocate memory without waiting for it to have its turn for scheduling.
-    pub fn can_transfer_time(&self) -> bool {
-        self.can_transfer_time
     }
 }
 
@@ -265,6 +255,8 @@ pub(crate) trait Network {
     fn send<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), MailboxSendError>;
 
     fn send_when_available<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError>;
+
+    fn transfer_time<O: Output>(&self, _: &Sender<O>) -> Result<(), SendError>;
 
     fn rendezvous<O: Output>(&self, sender: &Sender<O>, msg: &O) -> Result<(), SendError>;
 

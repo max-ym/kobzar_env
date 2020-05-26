@@ -85,6 +85,10 @@ impl Network for UnimplementedNetwork {
         unimplemented!()
     }
 
+    fn transfer_time<O: Output>(&self, _: &Sender<O>) -> Result<(), SendError> {
+        unimplemented!()
+    }
+
     fn rendezvous<O: Output>(&self, _: &Sender<O>, _: &O) -> Result<(), SendError> {
         unimplemented!()
     }
